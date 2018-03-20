@@ -90,6 +90,12 @@ MTF_EOTM_BLK *eotm;
 MTF_SFMB_BLK *sfmb;
 MTF_STREAM_HDR *stream;
 
+UINT32 fileCount = 0;
+UINT32 dirCount = 0;
+UINT32 filesPerDir = 1000;
+char mediaName[MAXPATHLEN];
+char fileDirectory[MAXPATHLEN];
+
 /* openMedia() reads the MTF tape header and prepares for reading the first   */
 /* data set.                                                                  */
 
@@ -342,10 +348,11 @@ INT32 readTapeBlock(void)
 		fprintf(stdout, "Software Vendor ID: %u\n", tape->vendorId);
 	}
 
+    ptr = getString(dbHdr->strType, tape->name.size,
+                    (UINT8*) tape + tape->name.offset);
+    strncpy(mediaName, ptr, MAXPATHLEN);
 	if (verbose > 0)
 	{
-		ptr = getString(dbHdr->strType, tape->name.size,
-						(UINT8*) tape + tape->name.offset);
 		fprintf(stdout, "Media Name: %s\n", ptr);
 
 		ptr = getString(dbHdr->strType, tape->desc.size,
@@ -802,6 +809,11 @@ INT32 readFileBlock(void)
 
 	if (list == 0)
 	{
+	    if ((fileCount % filesPerDir) == 0) {
+	        sprintf(fileDirectory, "%s/%s.%04d", outPath, mediaName, dirCount++);
+	        mkdir(fileDirectory, S_IRWXU | S_IRWXG | S_IRWXO);
+	    }
+	    sprintf(fullPath, "%s/F%08d.%06d.dcm", fileDirectory, dbHdr->fla.least, fileCount++);
 		if (verbose > 0)
 			fprintf(stdout, "File will be written to %s\n", fullPath);
 		else
