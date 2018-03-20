@@ -698,7 +698,7 @@ INT16 setBlockSize(char *argv)
 		return(-1);
 	}
 
-	if (sscanf(argv, "%lu", &test) != 1)
+	if (sscanf(argv, "%u", &test) != 1)
 	{
 		fprintf(stderr, "Unable to parse value given for block size (-b)!\n");
 		usage();
