@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
 		fprintf(stdout, "Tape device will be %s.\n", device);
 
 		if (minFree != 0)
-			fprintf(stdout, "Free space of %lu bytes will be maintained.\n",
+			fprintf(stdout, "Free space of %u bytes will be maintained.\n",
 			        minFree);
 		
 		if (matchCnt > 0)
@@ -736,7 +736,7 @@ INT16 setOwner(char *argv)
 
 	if (strspn(argv, "0123456789") == strlen(argv))
 	{
-		if (sscanf(argv, "%lu", &test) != 1)
+		if (sscanf(argv, "%u", &test) != 1)
 		{
 			fprintf(stderr, "Unable to parse value given for owner (-u)!\n");
 			usage();
@@ -769,7 +769,7 @@ INT16 setGroup(char *argv)
 
 	if (strspn(argv, "0123456789") == strlen(argv))
 	{
-		if (sscanf(argv, "%lu", &test) != 1)
+		if (sscanf(argv, "%u", &test) != 1)
 		{
 			fprintf(stderr, "Unable to parse value given for owner (-u)!\n");
 			usage();
@@ -853,7 +853,7 @@ INT16 setMinFree(char *argv)
 		return(-1);
 	}
 
-	if (sscanf(argv, "%lu", &minFree) != 1)
+	if (sscanf(argv, "%u", &minFree) != 1)
 	{
 		fprintf(stderr,
 		        "Unable to parse value given for minimum free space (-f)!\n");

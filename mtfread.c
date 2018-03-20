@@ -333,9 +333,9 @@ INT32 readTapeBlock(void)
 
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "TAPE Block Attributes: %08lX\n", tape->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "TAPE Block Attributes: %08X\n", tape->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -343,7 +343,7 @@ INT32 readTapeBlock(void)
 
 		fprintf(stdout, "MTF Major Version: %u\n", tape->ver);
 		fprintf(stdout, "Format Logical Block Size: %u\n", tape->flbSize);
-		fprintf(stdout, "Media Family ID: %lu\n", tape->famId);
+		fprintf(stdout, "Media Family ID: %u\n", tape->famId);
 		fprintf(stdout, "Media Sequence Number: %u\n", tape->seq);
 		fprintf(stdout, "Software Vendor ID: %u\n", tape->vendorId);
 	}
@@ -413,9 +413,9 @@ INT32 readStartOfSetBlock(void)
 
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "SSET Block Attributes: %08lX\n", sset->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "SSET Block Attributes: %08X\n", sset->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -426,7 +426,7 @@ INT32 readStartOfSetBlock(void)
 		fprintf(stdout, "Software Major Version: %u\n", sset->major);
 		fprintf(stdout, "Software Minor Version: %u\n", sset->minor);
 		fprintf(stdout, "Data Set Number: %u\n", sset->num);
-		fprintf(stdout, "Physical Block Address: %lu:%lu\n", sset->pba.most,
+		fprintf(stdout, "Physical Block Address: %u:%u\n", sset->pba.most,
 				sset->pba.least);
 		fprintf(stdout, "Password Encryption: %u\n", sset->passEncrypt);
 		fprintf(stdout, "Software Compression: %u\n", sset->softCompress);
@@ -480,8 +480,8 @@ INT32 readVolumeBlock(void)
 
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -535,14 +535,14 @@ INT32 readDirectoryBlock(void)
 
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
 		fprintf(stdout, "OS: %u\n", dbHdr->osId);
 
-		fprintf(stdout, "Directory ID: %lu\n", dirb->id);
+		fprintf(stdout, "Directory ID: %u\n", dirb->id);
 	}
 
 	if ((dirb->attr & MTF_DIR_PATH_IN_STREAM_BIT) == 0)
@@ -687,15 +687,15 @@ INT32 readFileBlock(void)
 
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
 		fprintf(stdout, "OS: %u\n", dbHdr->osId);
 
-		fprintf(stdout, "Directory ID: %lu\n", file->dirId);
-		fprintf(stdout, "File ID: %lu\n", file->id);
+		fprintf(stdout, "Directory ID: %u\n", file->dirId);
+		fprintf(stdout, "File ID: %u\n", file->id);
 
 		fprintf(stdout, "Modification Date: %02u:%02u:%02u %02u/%02u/%04u\n",
 		        MTF_HOUR(file->mod), MTF_MINUTE(file->mod),
@@ -887,7 +887,7 @@ INT32 readFileBlock(void)
 				(UINT32) fsbuf.f_bsize;
 
 			if (debug > 0)
-				printf("threshold=%lu avail=%ld\n", threshold, fsbuf.f_bavail);
+				printf("threshold=%u avail=%ld\n", threshold, fsbuf.f_bavail);
 
 			while ((UINT32) fsbuf.f_bavail < threshold)
 			{
@@ -956,7 +956,7 @@ INT32 readFileBlock(void)
 			}
 
 			if (debug > 0)
-				printf("writeData() returned %ld\n", result);
+				printf("writeData() returned %d\n", result);
 
 			while ((result % flbSize) != 0)
 			{
@@ -969,7 +969,7 @@ INT32 readFileBlock(void)
 				}
 
 				if (debug > 0)
-					printf("skipOverStream() returned %ld\n", result);
+					printf("skipOverStream() returned %d\n", result);
 			}
 		}
 		else
@@ -1033,8 +1033,8 @@ INT32 readCorruptObjectBlock(void)
 
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -1071,8 +1071,8 @@ INT32 readEndOfSetPadBlock(void)
 
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -1107,8 +1107,8 @@ INT32 readEndOfSetBlock(void)
 {
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -1141,8 +1141,8 @@ INT32 readEndOfTapeMarkerBlock(void)
 {
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -1175,8 +1175,8 @@ INT32 readSoftFileMarkBlock(void)
 {
 	if (verbose > 1)
 	{
-		fprintf(stdout, "Descriptor Block Attributes: %08lX\n", dbHdr->attr);
-		fprintf(stdout, "Format Logical Address: %lu:%lu\n",
+		fprintf(stdout, "Descriptor Block Attributes: %08X\n", dbHdr->attr);
+		fprintf(stdout, "Format Logical Address: %u:%u\n",
 				dbHdr->fla.most, dbHdr->fla.least);
 		fprintf(stdout, "Offset To First Event: %u\n", dbHdr->off);
 		fprintf(stdout, "String Type: %u\n", dbHdr->strType);
@@ -1458,7 +1458,7 @@ INT32 skipOverStream(void)
 	offset = (char*) stream - (char*) tBuffer;
 	offset += sizeof(MTF_STREAM_HDR);
 
-	if (debug > 0) printf("offset=%lu remaining=%u\n", offset, remaining);
+	if (debug > 0) printf("offset=%u remaining=%u\n", offset, remaining);
 
 	if (offset >= remaining)
 	{
@@ -1505,7 +1505,7 @@ INT32 skipOverStream(void)
 
 		fprintf(stdout, "System Attributes: %04X\n", hdr.sysAttr);
 		fprintf(stdout, "Media Attributes: %04X\n", hdr.mediaAttr);
-		fprintf(stdout, "Stream Length: %lu:%lu\n", hdr.length.most,
+		fprintf(stdout, "Stream Length: %u:%u\n", hdr.length.most,
 				stream->length.least);
 		fprintf(stdout, "Data Encryption: %u\n", hdr.encrypt);
 		fprintf(stdout, "Data Compression: %u\n", hdr.compress);
@@ -1523,12 +1523,12 @@ INT32 skipOverStream(void)
 	}
 
 	if (debug > 0)
-		printf("skipping %lu bytes from offset %lu...\n", bytes, offset);
+		printf("skipping %u bytes from offset %u...\n", bytes, offset);
 
 	decrement64(&hdr.length, bytes);
 
 	if (debug > 0)
-		printf("%lu:%lu not yet skipped\n", hdr.length.most, hdr.length.least);
+		printf("%u:%u not yet skipped\n", hdr.length.most, hdr.length.least);
 
 	if ((hdr.length.most == 0) && (hdr.length.least == 0))
 	{
@@ -1555,12 +1555,12 @@ INT32 skipOverStream(void)
 			}
 
 			if (debug > 0)
-				printf("skipping %lu bytes from offset 0...\n", bytes);
+				printf("skipping %u bytes from offset 0...\n", bytes);
 
 			decrement64(&hdr.length, bytes);
 
 			if (debug > 0)
-				printf("%lu:%lu not yet skipped\n", hdr.length.most,
+				printf("%u:%u not yet skipped\n", hdr.length.most,
 				       hdr.length.least);
 		}
 
@@ -1584,7 +1584,7 @@ INT32 skipOverStream(void)
 		}
 	}
 
-	if (debug > 0) printf("returning %ld\n", offset);
+	if (debug > 0) printf("returning %d\n", offset);
 
 	return(offset);
 }
@@ -1604,7 +1604,7 @@ INT32 writeData(int file)
 	offset = (char*) stream - (char*) tBuffer;
 	offset += sizeof(MTF_STREAM_HDR);
 
-	if (debug > 0) printf("offset=%lu remaining=%u\n", offset, remaining);
+	if (debug > 0) printf("offset=%u remaining=%u\n", offset, remaining);
 
 	if (offset >= remaining)
 	{
@@ -1638,7 +1638,7 @@ INT32 writeData(int file)
 	{
 		fprintf(stdout, "System Attributes: %04X\n", hdr.sysAttr);
 		fprintf(stdout, "Media Attributes: %04X\n", hdr.mediaAttr);
-		fprintf(stdout, "Stream Length: %lu:%lu\n", hdr.length.most,
+		fprintf(stdout, "Stream Length: %u:%u\n", hdr.length.most,
 				hdr.length.least);
 		fprintf(stdout, "Data Encryption: %u\n", hdr.encrypt);
 		fprintf(stdout, "Data Compression: %u\n", hdr.compress);
@@ -1668,7 +1668,7 @@ INT32 writeData(int file)
 	}
 
 	if (debug > 0)
-		printf("writing %lu bytes from offset %lu...\n", bytes, offset);
+		printf("writing %u bytes from offset %u...\n", bytes, offset);
 
 	if (write(file, &tBuffer[offset], bytes) != bytes)
 	{
@@ -1679,7 +1679,7 @@ INT32 writeData(int file)
 	decrement64(&hdr.length, bytes);
 
 	if (debug > 0)
-		printf("%lu:%lu not yet written\n", hdr.length.most, hdr.length.least);
+		printf("%u:%u not yet written\n", hdr.length.most, hdr.length.least);
 
 	if ((hdr.length.most == 0) && (hdr.length.least == 0))
 	{
@@ -1706,7 +1706,7 @@ INT32 writeData(int file)
 			}
 
 			if (debug > 0)
-				printf("writing %lu bytes from offset 0...\n", bytes);
+				printf("writing %u bytes from offset 0...\n", bytes);
 
 			if (write(file, tBuffer, bytes) != bytes)
 			{
@@ -1717,7 +1717,7 @@ INT32 writeData(int file)
 			decrement64(&hdr.length, bytes);
 
 			if (debug > 0)
-				printf("%lu:%lu not yet written\n", hdr.length.most,
+				printf("%u:%u not yet written\n", hdr.length.most,
 				       hdr.length.least);
 		}
 
@@ -1741,7 +1741,7 @@ INT32 writeData(int file)
 		}
 	}
 
-	if (debug > 0) printf("returning %ld\n", offset);
+	if (debug > 0) printf("returning %d\n", offset);
 
 	return(offset);
 }
