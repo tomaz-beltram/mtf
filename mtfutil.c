@@ -36,6 +36,8 @@ See mtf.c for version history, contributors, etc.
 
 
 #include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/fcntl.h>
@@ -128,10 +130,13 @@ void dump(char *name)
 {
 	int handle;
 
-	handle = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0640);
+	handle = open(name, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP);
 	if (handle != -1)
 	{
-		write(handle, tBuffer, remaining);
+		if (write(handle, tBuffer, remaining) == -1)
+        {
+            fprintf(stderr, "Error writing dump file (%d)!\n", errno);
+        }
 		close(handle);
 	}
 

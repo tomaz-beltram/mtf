@@ -6,6 +6,9 @@ CFLAGS=-Wall -O2 $(DEFINES) $(ARCH)
 OFILES=mtf.o mtfread.o mtfutil.o
 
 .SUFFIXES: .c .o
+.PHONY: all
+
+all: mtf
 
 .c.o:
 	$(CC) $(CFLAGS) -o $*.o -c $*.c

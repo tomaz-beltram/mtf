@@ -159,7 +159,12 @@ int main(int argc, char *argv[])
 
 	if (outPath[0] != '/')
 	{
-		getcwd(curPath, MAXPATHLEN);
+		if (getcwd(curPath, MAXPATHLEN) == NULL)
+		{
+		    fprintf(stderr, "Error in getcwd (%d)!\n", errno);
+	        return(-1);
+	    }
+
 		strcpy(path, outPath);
 		sprintf(outPath, "%s/%s", curPath, path);
 
@@ -189,7 +194,7 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "Case forced to lower.\n");
 
 		if (tapeBlockSize != (size_t) 0)
-			fprintf(stdout, "Tape block size set to %u bytes.\n",
+			fprintf(stdout, "Tape block size set to %lu bytes.\n",
 			        tapeBlockSize);
 
 		if (setNum != 0) fprintf(stdout, "Set %u will be read.\n", setNum);

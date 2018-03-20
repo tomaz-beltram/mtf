@@ -671,7 +671,7 @@ INT32 readFileBlock(void)
 	INT32 result;
 	char *ptr, *ptr2, filePath[MAXPATHLEN + 1], fullPath[MAXPATHLEN + 1];
 	char tmpPath[MAXPATHLEN + 1];
-	int i, output;
+	int i, output = -1;
 	struct tm tbuf;
 	struct utimbuf utbuf;
 	UINT32 threshold;
