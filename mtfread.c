@@ -699,7 +699,7 @@ INT32 readFileBlock(void)
 {
 	INT32 result;
 	char *ptr, *ptr2, filePath[MAXPATHLEN + 1], fullPath[MAXPATHLEN + 1];
-	char tmpPath[MAXPATHLEN + 1];
+	char tmpPath[MAXPATHLEN + 1], dcmPath[MAXPATHLEN + 1];
 	int i, output = -1;
 	struct tm tbuf;
 	struct utimbuf utbuf;
@@ -836,7 +836,7 @@ INT32 readFileBlock(void)
 	        mkdir(fileDirectory, S_IRWXU | S_IRWXG | S_IRWXO);
 	    }
 	    /* Pysical Block Address = Format Logical Address + 2 */
-	    sprintf(fullPath, "%s/F%08d.%06d.dcm", fileDirectory, dbHdr->fla.least + 2, fileCount++);
+	    sprintf(fullPath, "%s/F%08d.%06d", fileDirectory, dbHdr->fla.least + 2, fileCount++);
 		if (verbose > 0)
 			fprintf(stdout, "File will be written to %s\n", fullPath);
 		else
@@ -1044,6 +1044,13 @@ INT32 readFileBlock(void)
 						MTF_DAY(file->access), MTF_YEAR(file->access));
 			}
 		}
+		sprintf(dcmPath, "%s.dcm", fullPath);
+		if (rename(fullPath, dcmPath) != 0)
+        {
+            fprintf(stderr,
+                    "Error %d renaming to %s!\n", errno, dcmPath);
+            return(-1);
+        }
 	}
 
 	return(0);
