@@ -68,6 +68,7 @@ extern regex_t match[MAX_PATTERN];
 extern uid_t owner;
 extern gid_t group;
 extern UINT32 forwardNum;
+extern UINT32 limitFiles;
 
 UINT8 compressPossible;
 int filemark;
@@ -831,6 +832,10 @@ INT32 readFileBlock(void)
 
 	if (list == 0)
 	{
+	    if ((limitFiles > 0) && (fileCount > limitFiles)) {
+	        fprintf(stdout, "File limit reached %u\n", limitFiles);
+	        return(-1);
+	    }
 	    if ((fileCount % filesPerDir) == 0) {
 	        sprintf(fileDirectory, "%s/%s.%04d", outPath, mediaName, dirCount++);
 	        mkdir(fileDirectory, S_IRWXU | S_IRWXG | S_IRWXO);

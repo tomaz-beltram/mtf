@@ -94,6 +94,7 @@ regex_t match[MAX_PATTERN];
 gid_t group;
 uid_t owner;
 UINT32 forwardNum;
+UINT32 limitFiles;
 
 
 int main(int, char*[]);
@@ -101,6 +102,7 @@ static CHARPTR* parseEnv(char*, int*);
 static INT16 parseArgs(int, char*[]);
 static INT16 whichSet(char*);
 static INT16 setForward(char*);
+static INT16 setLimit(char*);
 static INT16 whichDevice(char*);
 static INT16 setBlockSize(char*);
 static INT16 setPath(char*);
@@ -135,6 +137,7 @@ int main(int argc, char *argv[])
 	group = -1;
 	forceCase = CASE_SENSITIVE;
 	forwardNum = 0;
+	limitFiles = 0;
 
 	ptr = getenv("TAPE");
 	if (ptr != NULL)
@@ -535,6 +538,20 @@ INT16 parseArgs(int argc, char *argv[])
                 if (setForward(argv[i]) != 0)
                     return(-1);
             }
+            else if (strcmp(ptr, "L") == 0)
+            {
+                i += 1;
+
+                if (i == argc)
+                {
+                    fprintf(stderr, "Argument required for -L switch!\n");
+                    usage();
+                    return(-1);
+                }
+
+                if (setLimit(argv[i]) != 0)
+                    return(-1);
+            }
 			else if (strcmp(ptr, "d") == 0)
 			{
 				i += 1;
@@ -714,6 +731,29 @@ INT16 setForward(char *argv)
     }
 
     forwardNum = test;
+
+    return(0);
+}
+
+INT16 setLimit(char *argv)
+{
+    UINT32 test;
+
+    if (strspn(argv, "0123456789") != strlen(argv))
+    {
+        fprintf(stderr, "Invalid value given for file limit (-l)!\n");
+        usage();
+        return(-1);
+    }
+
+    if (sscanf(argv, "%u", &test) != 1)
+    {
+        fprintf(stderr, "Unable to parse value given for file limit (-l)!\n");
+        usage();
+        return(-1);
+    }
+
+    limitFiles = test;
 
     return(0);
 }
@@ -962,6 +1002,7 @@ void usage(void)
 	fprintf(stderr, "    -d device        device to read from\n");
 	fprintf(stderr, "    -s set           number of data set to read\n");
     fprintf(stderr, "    -f records       number of space records to forward (PBA - 5)\n");
+    fprintf(stderr, "    -L files         limit number of files to read\n");
 	fprintf(stderr, "    -u user          assign owner to all files/directories written\n");
 	fprintf(stderr, "    -g group         assign group to all files/directories written\n");
 	fprintf(stderr, "    -c [lower|upper] force the case of paths\n");
