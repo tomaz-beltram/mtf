@@ -67,7 +67,7 @@ extern UINT32 minFree;
 extern regex_t match[MAX_PATTERN];
 extern uid_t owner;
 extern gid_t group;
-
+extern UINT32 forwardNum;
 
 UINT8 compressPossible;
 int filemark;
@@ -76,6 +76,7 @@ UINT16 remaining;
 UINT16 setCompress;
 UINT32 blockCnt;
 struct mtop mt_cmd;
+struct mtop op;
 
 MTF_DB_HDR *dbHdr;
 MTF_TAPE_BLK *tape;
@@ -163,6 +164,27 @@ INT32 readDataSet(void)
 		fprintf(stderr, "Error reading SSET block!\n");
 		return(-1);
 	}
+
+	if (forwardNum > 0)
+    {
+        op.mt_op = MTFSR;
+        op.mt_count = forwardNum;
+
+        if (verbose > 0)
+            fprintf(stdout, "Forward space record #%u...\n", forwardNum);
+
+        if (ioctl(mtfd, MTIOCTOP, &op) != 0)
+        {
+            fprintf(stderr, "Error forwarding space record!\n");
+            return(-1);
+        }
+
+        if (readNextBlock(0) != 0)
+        {
+            fprintf(stderr, "Error reading first block after forward space record!\n");
+            return(-1);
+        }
+    }
 
 	result = 0;
 	while ((result == 0) && (filemark == 0))
@@ -813,7 +835,8 @@ INT32 readFileBlock(void)
 	        sprintf(fileDirectory, "%s/%s.%04d", outPath, mediaName, dirCount++);
 	        mkdir(fileDirectory, S_IRWXU | S_IRWXG | S_IRWXO);
 	    }
-	    sprintf(fullPath, "%s/F%08d.%06d.dcm", fileDirectory, dbHdr->fla.least, fileCount++);
+	    /* Pysical Block Address = Format Logical Address + 2 */
+	    sprintf(fullPath, "%s/F%08d.%06d.dcm", fileDirectory, dbHdr->fla.least + 2, fileCount++);
 		if (verbose > 0)
 			fprintf(stdout, "File will be written to %s\n", fullPath);
 		else
