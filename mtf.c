@@ -95,6 +95,9 @@ gid_t group;
 uid_t owner;
 UINT32 forwardNum;
 UINT32 limitFiles;
+int limitReached;
+char mediaName[MAXPATHLEN];
+int skipHeaders;
 
 
 int main(int, char*[]);
@@ -103,6 +106,7 @@ static INT16 parseArgs(int, char*[]);
 static INT16 whichSet(char*);
 static INT16 setForward(char*);
 static INT16 setLimit(char*);
+static INT16 setMediaName(char*);
 static INT16 whichDevice(char*);
 static INT16 setBlockSize(char*);
 static INT16 setPath(char*);
@@ -138,6 +142,8 @@ int main(int argc, char *argv[])
 	forceCase = CASE_SENSITIVE;
 	forwardNum = 0;
 	limitFiles = 0;
+    strcpy(mediaName, "");
+    skipHeaders = 0;
 
 	ptr = getenv("TAPE");
 	if (ptr != NULL)
@@ -313,6 +319,11 @@ next:
 		goto error;
 	}
 
+	if (limitReached == 1)
+	{
+	    if (verbose > 0) fprintf(stdout, "Successful read until file limit!\n");
+	    goto done;
+	}
 	result = readEndOfDataSet();
 	if (result < 0)
 	{
@@ -325,6 +336,7 @@ next:
 
 	if (verbose > 0) fprintf(stdout, "Successful read of archive!\n");
 	
+done:
 	close(mtfd);
 
 	return(0);
@@ -552,6 +564,20 @@ INT16 parseArgs(int argc, char *argv[])
                 if (setLimit(argv[i]) != 0)
                     return(-1);
             }
+            else if (strcmp(ptr, "m") == 0)
+            {
+                i += 1;
+
+                if (i == argc)
+                {
+                    fprintf(stderr, "Argument required for -m switch!\n");
+                    usage();
+                    return(-1);
+                }
+
+                if (setMediaName(argv[i]) != 0)
+                    return(-1);
+            }
 			else if (strcmp(ptr, "d") == 0)
 			{
 				i += 1;
@@ -754,6 +780,14 @@ INT16 setLimit(char *argv)
     }
 
     limitFiles = test;
+
+    return(0);
+}
+
+INT16 setMediaName(char *argv)
+{
+    strcpy(mediaName, argv);
+    skipHeaders = 1;
 
     return(0);
 }
@@ -1003,6 +1037,7 @@ void usage(void)
 	fprintf(stderr, "    -s set           number of data set to read\n");
     fprintf(stderr, "    -f records       number of space records to forward (PBA - 5)\n");
     fprintf(stderr, "    -L files         limit number of files to read\n");
+    fprintf(stderr, "    -m media_name    no rewind and reading headers\n");
 	fprintf(stderr, "    -u user          assign owner to all files/directories written\n");
 	fprintf(stderr, "    -g group         assign group to all files/directories written\n");
 	fprintf(stderr, "    -c [lower|upper] force the case of paths\n");

@@ -69,6 +69,9 @@ extern uid_t owner;
 extern gid_t group;
 extern UINT32 forwardNum;
 extern UINT32 limitFiles;
+extern int limitReached;
+extern char mediaName[MAXPATHLEN];
+extern int skipHeaders;
 
 UINT8 compressPossible;
 int filemark;
@@ -95,7 +98,6 @@ MTF_STREAM_HDR *stream;
 UINT32 fileCount = 0;
 UINT32 dirCount = 0;
 UINT32 filesPerDir = 1000;
-char mediaName[MAXPATHLEN];
 char fileDirectory[MAXPATHLEN];
 
 /* openMedia() reads the MTF tape header and prepares for reading the first   */
@@ -105,10 +107,38 @@ INT32 openMedia(void)
 {
 	INT32 result;
 
+    if (skipHeaders == 0) {
+        op.mt_op = MTREW;
+        op.mt_count = 0;
+
+        if (verbose > 0)
+            fprintf(stdout, "Rewind tape.\n");
+
+        if (ioctl(mtfd, MTIOCTOP, &op) != 0)
+        {
+            fprintf(stderr, "Error rewinding tape!\n");
+            return(-1);
+        }
+    }
+    else {
+        op.mt_op = MTBSR;
+        op.mt_count = 1;
+
+        if (verbose > 0)
+            fprintf(stdout, "Backward one space record.\n");
+
+        if (ioctl(mtfd, MTIOCTOP, &op) != 0)
+        {
+            fprintf(stderr, "Error backwarding space record!\n");
+            return(-1);
+        }
+    }
+
 	if (verbose > 0) fprintf(stdout, "\nReading TAPE block...\n");
 
 	blockCnt = 0;
 	filemark = 0;
+	limitReached = 0;
 
 	result = readNextBlock(0); 
 	if (result != 0)
@@ -117,6 +147,10 @@ INT32 openMedia(void)
 		return(-1);
 	}
 
+	if (skipHeaders == 1) {
+	    if (verbose > 0) fprintf(stdout, "Skip reading TAPE block.\n");
+	    return(0);
+	}
 	dbHdr = (MTF_DB_HDR*) tBuffer;
 
 	if (dbHdr->type != MTF_TAPE)
@@ -147,6 +181,12 @@ INT32 readDataSet(void)
 	if (verbose > 0) fprintf(stdout, "\nReading SSET block...\n");
 
 	filemark = 0;
+
+    if (skipHeaders == 1) {
+        if (verbose > 0) fprintf(stdout, "Skip reading SSET block.\n");
+
+        goto skip;
+    }
 
 	dbHdr = (MTF_DB_HDR*) tBuffer;
 
@@ -186,9 +226,9 @@ INT32 readDataSet(void)
             return(-1);
         }
     }
-
+skip:
 	result = 0;
-	while ((result == 0) && (filemark == 0))
+	while ((result == 0) && (filemark == 0) && (limitReached == 0))
 	{
 		dbHdr = (MTF_DB_HDR*) tBuffer;
 
@@ -265,6 +305,9 @@ INT32 readDataSet(void)
 	{
 		fprintf(stderr, "Error reading tape block!\n");
 		return(-1);
+	}
+	else if (limitReached == 1) {
+	    return(0);
 	}
 	else if (filemark == 0)
 	{
@@ -832,10 +875,6 @@ INT32 readFileBlock(void)
 
 	if (list == 0)
 	{
-	    if ((limitFiles > 0) && (fileCount > limitFiles)) {
-	        fprintf(stdout, "File limit reached %u\n", limitFiles);
-	        return(-1);
-	    }
 	    if ((fileCount % filesPerDir) == 0) {
 	        sprintf(fileDirectory, "%s/%s.%04d", outPath, mediaName, dirCount++);
 	        mkdir(fileDirectory, S_IRWXU | S_IRWXG | S_IRWXO);
@@ -1055,6 +1094,11 @@ INT32 readFileBlock(void)
             fprintf(stderr,
                     "Error %d renaming to %s!\n", errno, dcmPath);
             return(-1);
+        }
+        if ((limitFiles > 0) && (fileCount >= limitFiles)) {
+            fprintf(stdout, "File limit reached %u\n", limitFiles);
+            limitReached = 1;
+            return(0);
         }
 	}
 
