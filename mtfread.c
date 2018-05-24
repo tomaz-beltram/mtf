@@ -132,6 +132,7 @@ INT32 openMedia(void)
             fprintf(stderr, "Error backwarding space record!\n");
             return(-1);
         }
+        flbSize = tapeBlockSize;
     }
 
 	if (verbose > 0) fprintf(stdout, "\nReading TAPE block...\n");
