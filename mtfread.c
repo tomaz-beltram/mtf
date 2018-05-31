@@ -179,55 +179,70 @@ INT32 readDataSet(void)
 	INT32 result;
 	char *ptr;
 
-	if (verbose > 0) fprintf(stdout, "\nReading SSET block...\n");
-
 	filemark = 0;
 
     if (skipHeaders == 1) {
         if (verbose > 0) fprintf(stdout, "Skip reading SSET block.\n");
+    }
+    else {
+        if (verbose > 0) fprintf(stdout, "\nReading SSET block...\n");
 
-        goto skip;
+        dbHdr = (MTF_DB_HDR*) tBuffer;
+
+        if (dbHdr->type != MTF_SSET)
+        {
+            ptr = (char*) &sset->common.type;
+            fprintf(stderr, "Unexpected descriptor block type \'%c%c%c%c\'!\n",
+                    *ptr, *(ptr + 1), *(ptr + 2), *(ptr + 3));
+            return(-1);
+        }
+
+        sset = (MTF_SSET_BLK*) dbHdr;
+
+        if (readStartOfSetBlock() != 0)
+        {
+            fprintf(stderr, "Error reading SSET block!\n");
+            return(-1);
+        }
     }
 
-	dbHdr = (MTF_DB_HDR*) tBuffer;
-
-	if (dbHdr->type != MTF_SSET)
-	{
-		ptr = (char*) &sset->common.type;
-		fprintf(stderr, "Unexpected descriptor block type \'%c%c%c%c\'!\n",
-				*ptr, *(ptr + 1), *(ptr + 2), *(ptr + 3));
-		return(-1);
-	}
-
-	sset = (MTF_SSET_BLK*) dbHdr;
-
-	if (readStartOfSetBlock() != 0)
-	{
-		fprintf(stderr, "Error reading SSET block!\n");
-		return(-1);
-	}
+    struct mtget get;
+    if (ioctl(mtfd, MTIOCGET, &get) != 0)
+    {
+        fprintf(stderr, "Error get statu: %s (%d)!\n", strerror(errno), errno);
+        return(-1);
+    }
+    if (verbose > 0)
+        fprintf(stdout, "Current position #%d\n", get.mt_blkno);
 
 	if (forwardNum > 0)
     {
-        op.mt_op = MTFSR;
-        op.mt_count = forwardNum;
+        int num = forwardNum - get.mt_blkno - 3;
+        if (num > 0) {
+            op.mt_op = MTFSR;
+            op.mt_count = num;
 
-        if (verbose > 0)
-            fprintf(stdout, "Forward space record #%u...\n", forwardNum);
+            if (verbose > 0)
+                fprintf(stdout, "Forward space record #%u, %d...\n", forwardNum, num);
 
-        if (ioctl(mtfd, MTIOCTOP, &op) != 0)
-        {
-            fprintf(stderr, "Error forwarding space record!\n");
-            return(-1);
+            if (ioctl(mtfd, MTIOCTOP, &op) != 0)
+            {
+                fprintf(stderr, "Error forwarding space record!\n");
+                return(-1);
+            }
+
+            if (readNextBlock(0) != 0)
+            {
+                fprintf(stderr, "Error reading first block after forward space record!\n");
+                return(-1);
+            }
         }
-
-        if (readNextBlock(0) != 0)
-        {
-            fprintf(stderr, "Error reading first block after forward space record!\n");
-            return(-1);
+        else {
+            if (verbose > 0)
+                fprintf(stdout, "Can't forward space record %d...\n", num);
         }
     }
-skip:
+
 	result = 0;
 	while ((result == 0) && (filemark == 0) && (limitReached == 0))
 	{

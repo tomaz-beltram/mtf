@@ -1035,7 +1035,7 @@ void usage(void)
 	fprintf(stderr, "    -b bytes         tape block size\n");
 	fprintf(stderr, "    -d device        device to read from\n");
 	fprintf(stderr, "    -s set           number of data set to read\n");
-    fprintf(stderr, "    -f records       number of space records to forward (PBA - 5)\n");
+    fprintf(stderr, "    -f record#       number of space record to forward to (PBA)\n");
     fprintf(stderr, "    -L files         limit number of files to read\n");
     fprintf(stderr, "    -m media_name    no rewind and reading headers\n");
 	fprintf(stderr, "    -u user          assign owner to all files/directories written\n");
