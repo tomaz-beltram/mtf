@@ -215,20 +215,28 @@ INT32 readDataSet(void)
     if (verbose > 0)
         fprintf(stdout, "Current position #%d\n", get.mt_blkno);
 
-	if (forwardNum > 0)
+    if (forwardNum > 0)
     {
-        int num = forwardNum - get.mt_blkno - 3;
+        int num = forwardNum - get.mt_blkno - 3; /* three blocks for tape and data set ?*/
         if (num > 0) {
-            op.mt_op = MTFSR;
-            op.mt_count = num;
+            int maxSeek = 0x7fffff;
+            while (num > 0) {
 
-            if (verbose > 0)
-                fprintf(stdout, "Forward space record #%u, %d...\n", forwardNum, num);
+                int seek = min(num, maxSeek);
 
-            if (ioctl(mtfd, MTIOCTOP, &op) != 0)
-            {
-                fprintf(stderr, "Error forwarding space record!\n");
-                return(-1);
+                op.mt_op = MTFSR;
+                op.mt_count = seek;
+
+                if (verbose > 0)
+                    fprintf(stdout, "Forward space record #%u, %d...\n", forwardNum, seek);
+
+                if (ioctl(mtfd, MTIOCTOP, &op) != 0)
+                {
+                    fprintf(stderr, "Error forwarding space record: %s (%d)!\n", strerror(errno), errno);
+
+                    return(-1);
+                }
+                num -= seek;
             }
 
             if (readNextBlock(0) != 0)
