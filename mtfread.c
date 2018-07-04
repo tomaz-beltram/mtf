@@ -209,7 +209,7 @@ INT32 readDataSet(void)
     struct mtget get;
     if (ioctl(mtfd, MTIOCGET, &get) != 0)
     {
-        fprintf(stderr, "Error get statu: %s (%d)!\n", strerror(errno), errno);
+        fprintf(stderr, "Error get status: %s (%d)!\n", strerror(errno), errno);
         return(-1);
     }
     if (verbose > 0)
@@ -218,7 +218,35 @@ INT32 readDataSet(void)
     if (forwardNum > 0)
     {
         int num = forwardNum - get.mt_blkno - 3; /* three blocks for tape and data set ?*/
-        if (num > 0) {
+
+        if (num < -1) {
+            int maxSeek = 0x7fffff;
+            while (num < 0) {
+
+                int seek = min(-num, maxSeek);
+
+                op.mt_op = MTBSR;
+                op.mt_count = seek;
+
+                if (verbose > 0)
+                    fprintf(stdout, "Backward space record #%u, %d...\n", forwardNum, seek);
+
+                if (ioctl(mtfd, MTIOCTOP, &op) != 0)
+                {
+                    fprintf(stderr, "Error backwarding space record: %s (%d)!\n", strerror(errno), errno);
+
+                    return(-1);
+                }
+                num += seek;
+            }
+
+            if (readNextBlock(0) != 0)
+            {
+                fprintf(stderr, "Error reading first block after backward space record!\n");
+                return(-1);
+            }
+        }
+        else if (num > 0) {
             int maxSeek = 0x7fffff;
             while (num > 0) {
 
@@ -247,7 +275,7 @@ INT32 readDataSet(void)
         }
         else {
             if (verbose > 0)
-                fprintf(stdout, "Can't forward space record %d...\n", num);
+                fprintf(stdout, "Already at tape position.\n");
         }
     }
 
