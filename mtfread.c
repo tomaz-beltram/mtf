@@ -217,9 +217,9 @@ INT32 readDataSet(void)
 
     if (forwardNum > 0)
     {
-        int num = forwardNum - get.mt_blkno - 3; /* three blocks for tape and data set ?*/
+        int num = forwardNum - get.mt_blkno - 2; /* two blocks for tape and data set ?*/
 
-        if (num < -1) {
+        if (num < 0) {
             int maxSeek = 0x7fffff;
             while (num < 0) {
 
