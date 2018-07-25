@@ -129,6 +129,8 @@ int main(int argc, char *argv[])
 	struct passwd *pbuf;
 	struct group *gbuf;
 
+	fprintf(stdout, "MTF tool version 0.2.1.1 build on " __DATE__ " at " __TIME__ ".\n");
+
 	verbose = 0;
 	debug = 0;
 	list = 0;

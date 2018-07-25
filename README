@@ -23,6 +23,15 @@ Layton Graphics, Inc.
 Marietta, GA 30062
 astewart@layton-graphics.com
 
+7/25/2018 - mtf version 0.2.1.1
+
+Added several useful options.
+
+    -f record#       number of space record to forward to (PBA)
+    -L files         limit number of files to read
+    -m media_name    no rewind and reading headers
+
+Creating output file names with PBA and sequence number.
 
 9/13/2000 - mtf version 0.2.1
 
