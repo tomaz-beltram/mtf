@@ -1404,6 +1404,22 @@ INT32 readNextBlock(UINT16 advance)
 
 			if (result < 0)
 			{
+                op.mt_op = MTFSR;
+                op.mt_count = 1;
+                ioctl(mtfd, MTIOCTOP, &op);
+
+                if (ioctl(mtfd, MTIOCGET, &get) != 0)
+                {
+                    fprintf(stderr, "Error returned by MTIOCGET!\n");
+                    return(-1);
+                }
+                if (GMT_EOD(get.mt_gstat)) {
+                    if (verbose > 0)
+                        fprintf(stdout, "End of data reached!\n");
+                    filemark = 1;
+                    remaining = 0;
+                    return(1);
+                }
 				fprintf(stderr, "Error reading tape!\n");
 				return(-1);
 			}
